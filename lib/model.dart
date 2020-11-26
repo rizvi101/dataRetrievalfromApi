@@ -1,12 +1,12 @@
-class Album {
+class User {
   final String name;
   final String username;
   final String email;
 
-  Album({this.name, this.username, this.email});
+  User({this.name, this.username, this.email});
 
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return Album(
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
       name: json['name'],
       username: json['username'],
       email: json['email'],

@@ -1,60 +1,38 @@
 import 'dart:async';
-import 'dart:convert';
-
+import 'package:album/controller.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
 import 'model.dart';
 
-void main() => runApp(Api());
+void main() => runApp(MyHomePage());
 
-class Api extends StatefulWidget {
+class MyHomePage extends StatefulWidget {
   @override
-  _ApiState createState() => _ApiState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _ApiState extends State<Api> {
-  List<Album> _users = List<Album>();
+class _MyHomePageState extends State<MyHomePage> {
+  List<User> _users = List<User>();
   bool isLoading = false;
-  bool data = false;
-  String error;
+  String error = '';
 
-  Future<List<Album>> fetchAlbum() async {
-    setState(() {
-      isLoading = true;
-    });
+  Future fetchAlbum() async {
+    isLoading = true;
+    setState(() {});
     try {
-      var url = 'https://jsonplaceholder.typicode.com/users';
-      var response = await http.get(url);
-      var users = List<Album>();
-
-      if (response.statusCode == 200) {
-        var usersJson = json.decode(response.body);
-        for (var userJson in usersJson) {
-          users.add(Album.fromJson(userJson));
-        }
-      }
-      setState(() {
-        isLoading = false;
-        _users.addAll(users);
-      });
+      UsersApi usersApi = UsersApi();
+      var users = await usersApi.getUsers();
+      _users = users;
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        data = true;
-        print('Exception Caught: $e');
-      });
+      error = e.message;
+    } finally {
+      isLoading = false;
+      setState(() {});
     }
   }
 
   @override
   void initState() {
     fetchAlbum();
-    // fetchAlbum().then((value) {
-    //   setState(() {
-    //     _users.addAll(value);
-    //   });
-    // });
     super.initState();
   }
 
@@ -66,37 +44,54 @@ class _ApiState extends State<Api> {
           title: Text('Api Json Data ListView'),
         ),
         body: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : data
-                ? Center(
-                    child: Text('Api crashed'),
-                  )
-                : ListView.builder(
-                    itemCount: _users.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              if (isLoading) Text('Is Loading'),
-                              Text(
-                                _users[index].username,
-                                style: TextStyle(fontSize: 32),
-                              ),
-                              Text(
-                                _users[index].name,
-                                style: TextStyle(fontSize: 24),
-                              ),
-                              Text(
-                                _users[index].email,
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
+            ? _buildLoader()
+            : error.isNotEmpty
+                ? _buildErrorWidget()
+                : _buildListView(),
+      ),
+    );
+  }
+
+  Center _buildLoader() => Center(child: CircularProgressIndicator());
+
+  ListView _buildListView() {
+    return ListView.builder(
+      itemCount: _users.length,
+      itemBuilder: (context, index) {
+        var user = _users[index];
+        return Card(
+          elevation: 4,
+          child: ListTile(
+            leading: CircleAvatar(
+              child: Text(user.name.substring(0, 2)),
+            ),
+            title: Text(user.name),
+            subtitle: Text(user.email),
+            trailing: Text(user.username),
+          ),
+        );
+      },
+    );
+  }
+
+  Center _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error,
+            color: Colors.red.withOpacity(0.3),
+            size: 40,
+          ),
+          Text(
+            error,
+            style: TextStyle(
+              fontSize: 24,
+              color: Colors.grey,
+            ),
+          ),
+        ],
       ),
     );
   }

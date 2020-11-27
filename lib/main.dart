@@ -14,6 +14,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int b = 78;
   String c = 'hello';
   List<User> _users = List<User>();
+  int a = 2;
   bool isLoading = false;
   String error = '';
 

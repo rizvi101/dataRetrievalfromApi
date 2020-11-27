@@ -12,6 +12,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<User> _users = List<User>();
+  int a = 2;
   bool isLoading = false;
   String error = '';
 

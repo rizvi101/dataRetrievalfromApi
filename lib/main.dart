@@ -65,9 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return Card(
           elevation: 4,
           child: ListTile(
-            leading: CircleAvatar(
-              child: Text(user.name.substring(0, 2)),
-            ),
+            leading: Text(user.name.substring(0, 2)),
             title: Text(user.name),
             subtitle: Text(user.email),
             trailing: Text(user.username),
